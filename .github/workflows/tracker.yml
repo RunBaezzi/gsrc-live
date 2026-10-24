@@ -1,0 +1,105 @@
+# GSRC 춘천마라톤 라이브 트래커 - 자동 기록 수집기
+# 1) 1분마다 마이리저트 기록을 읽어 'data' 브랜치의 data.json 을 갱신
+# 2) 매번 'GSRC Site Deploy'를 호출해 웹사이트(GitHub Pages)에 최신 기록을 반영
+# 3) 종료 시각(stop_at)까지 계속 돌고, GitHub 실행 시간 한도(6시간)에 걸리면 스스로 이어서 실행
+name: GSRC Marathon Tracker
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: '실행 방식'
+        type: choice
+        options: ['실전', '1회 테스트']
+        default: '실전'
+      stop_at:
+        description: '추적 종료 시각 (한국시간 HHMM, 예: 1530)'
+        default: '1530'
+      interval:
+        description: '갱신 간격(초)'
+        default: '60'
+  schedule:
+    # 예비 자동 시작: 10/25(일) 08:20 KST (= 10/24 23:20 UTC). 대회가 끝나면 이 두 줄은 지워주세요.
+    - cron: '20 23 24 10 *'
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: gsrc-marathon-tracker
+  cancel-in-progress: true
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install
+        run: pip install requests
+
+      - name: Prepare data branch
+        run: |
+          git config --global user.name "gsrc-tracker-bot"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin data >/dev/null 2>&1; then
+            git fetch --depth=1 origin +refs/heads/data:refs/remotes/origin/data
+            git worktree add -B data _data origin/data
+          else
+            git worktree add --detach _data
+            cd _data
+            git checkout --orphan data
+            git rm -rf . -q || true
+            cd ..
+          fi
+
+      - name: Track loop
+        env:
+          DATA_PATH: _data/data.json
+          DEBUG_SAMPLE_PATH: _data/debug_sample.txt
+          MODE: ${{ github.event.inputs.mode || '실전' }}
+          STOP_AT: ${{ github.event.inputs.stop_at || '1530' }}
+          INTERVAL: ${{ github.event.inputs.interval || '60' }}
+          GH_TOKEN: ${{ github.token }}
+          SITE_REF: ${{ github.event.repository.default_branch }}
+        run: |
+          JOB_END=$(( $(date +%s) + 340*60 ))
+          push_data () {
+            cd _data
+            git add -A
+            if git rev-parse --verify HEAD >/dev/null 2>&1; then
+              git commit --amend -q -m "live data $(TZ=Asia/Seoul date +%H:%M:%S)" || true
+            else
+              git commit -q -m "live data $(TZ=Asia/Seoul date +%H:%M:%S)" || true
+            fi
+            for i in 1 2 3; do git push -f -q origin data && break; sleep 3; done
+            cd ..
+          }
+          publish () {
+            gh workflow run deploy.yml --ref "$SITE_REF" >/dev/null 2>&1 || echo "사이트 배포 호출 실패 - 다음 회차에 재시도"
+          }
+          while true; do
+            python tracker.py || echo "tracker 실행 오류 - 다음 회차에 재시도"
+            push_data
+            publish
+            [ "$MODE" = "1회 테스트" ] && break
+            NOW_HHMM=$((10#$(TZ=Asia/Seoul date +%H%M)))
+            [ $NOW_HHMM -ge $((10#$STOP_AT)) ] && { echo "종료 시각 도달"; break; }
+            [ $(date +%s) -ge $JOB_END ] && { echo "실행 한도 도달 - 이어달리기"; echo "CHAIN=1" >> "$GITHUB_ENV"; break; }
+            sleep "$INTERVAL"
+          done
+
+      - name: Continue in a new run (이어달리기)
+        if: env.CHAIN == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run tracker.yml --ref "${{ github.ref_name }}" \
+            -f mode=실전 -f stop_at="${{ github.event.inputs.stop_at || '1530' }}" \
+            -f interval="${{ github.event.inputs.interval || '60' }}"
