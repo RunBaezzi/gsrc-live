@@ -1,0 +1,56 @@
+# GSRC 웹사이트 배포
+# - main 에 파일을 올리거나, 기록 수집기가 1분마다 호출할 때 실행됩니다.
+# - 화면 파일(index.html, classic.html, admin.html) + 수동 보정(manual.json) + 최신 기록(data 브랜치의 data.json)을 GitHub Pages 에 올립니다.
+#   GitHub Pages 는 접속자가 수백 명이어도 버티는 대형 서버(CDN)라서 크루원이 몰려도 안전합니다.
+name: GSRC Site Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: gsrc-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build site folder
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          if [ -f classic.html ]; then cp classic.html _site/; fi
+          if [ -f admin.html ]; then cp admin.html _site/; fi
+          if [ -f manual.json ] && python3 -c "import json; json.load(open('manual.json'))"; then cp manual.json _site/; fi
+          if git ls-remote --exit-code --heads origin data >/dev/null 2>&1; then
+            git fetch --depth=1 origin +refs/heads/data:refs/remotes/origin/data
+            git show origin/data:data.json > _site/data.json 2>/dev/null || rm -f _site/data.json
+          fi
+          if [ -f _site/data.json ] && ! python3 -c "import json,sys; json.load(open('_site/data.json'))"; then
+            echo "data.json 이 깨져 있어 이번 배포에서는 제외"; rm -f _site/data.json
+          fi
+          touch _site/.nojekyll
+          ls -la _site
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+          retention-days: 1
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
