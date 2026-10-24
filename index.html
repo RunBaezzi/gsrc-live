@@ -767,6 +767,65 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .follow-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--volt)}
   .follow-pill button{background:rgba(255,255,255,.14);color:#fff;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px}
 
+  /* 완주 축하 배너 */
+  /* ───── 응원 채팅 ───── */
+  [hidden]{display:none!important}
+  .chat-fab{position:fixed;z-index:1150;right:14px;bottom:calc(var(--sheet-vis,200px) + 14px);width:54px;height:54px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.35);transition:bottom .32s cubic-bezier(.2,.8,.2,1)}
+  .chat-fab:active{transform:scale(.94)}
+  .chat-fab .badge{position:absolute;top:-3px;right:-3px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--warn);color:#fff;font-size:11px;font-weight:800;display:none;align-items:center;justify-content:center;border:2px solid #fff}
+  .chat-fab .badge.show{display:flex}
+  .chat{position:fixed;z-index:1400;left:0;right:0;bottom:0;top:calc(var(--top) + 4px);background:#fff;border-radius:22px 22px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.3);display:flex;flex-direction:column;transform:translateY(105%);transition:transform .3s cubic-bezier(.2,.8,.2,1);overflow:hidden}
+  .chat.open{transform:none}
+  .chat-head{display:flex;align-items:center;gap:10px;padding:14px 14px 10px;border-bottom:1px solid var(--line)}
+  .chat-head .ct{flex:1;min-width:0}
+  .chat-head .ct b{font-size:16px;font-weight:800;display:block}
+  .chat-head .ct span{font-size:11px;font-weight:600;color:var(--ink2);display:flex;align-items:center;gap:5px}
+  .chat-head .ct i{width:7px;height:7px;border-radius:50%;background:var(--wait);display:inline-block}
+  .chat-head .ct i.on{background:var(--run)}
+  .chat-nick{font-size:12px;font-weight:800;background:var(--soft);padding:6px 10px;border-radius:999px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chat-x{width:34px;height:34px;border-radius:50%;background:var(--soft);display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .chat-msgs{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:12px 14px;display:flex;flex-direction:column;gap:8px;background:#FAFAFA}
+  .msg{max-width:80%;display:flex;flex-direction:column;gap:2px;align-self:flex-start}
+  .msg .mn{font-size:11px;font-weight:800;color:var(--ink2);padding-left:4px}
+  .msg .mb{background:#fff;border:1px solid var(--line);border-radius:4px 16px 16px 16px;padding:8px 11px;font-size:14px;line-height:1.45;word-break:break-word;white-space:pre-wrap}
+  .msg .mt{font-size:10px;color:var(--ink3);padding-left:4px}
+  .msg.me{align-self:flex-end;align-items:flex-end}
+  .msg.me .mn{display:none}
+  .msg.me .mb{background:var(--ink);color:#fff;border-color:var(--ink);border-radius:16px 4px 16px 16px}
+  .msg.me .mt{padding-right:4px}
+  .msg.pending{opacity:.55}
+  .chat-empty{margin:auto;text-align:center;color:var(--ink3);font-size:13px;font-weight:600;line-height:1.7}
+  .chat-quick{display:flex;gap:6px;overflow-x:auto;padding:8px 12px 0;scrollbar-width:none}
+  .chat-quick::-webkit-scrollbar{display:none}
+  .chat-quick button{flex:0 0 auto;font-size:13px;font-weight:700;background:var(--soft);padding:7px 11px;border-radius:999px;white-space:nowrap}
+  .chat-input{display:flex;gap:8px;padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 10px)}
+  .chat-input input{flex:1;min-width:0;height:44px;border-radius:999px;border:0;background:var(--soft);padding:0 16px;font-size:16px;font-family:var(--sans);outline:none}
+  .chat-input button{height:44px;padding:0 18px;border-radius:999px;background:var(--volt);color:var(--ink);font-size:15px;font-weight:800;flex:0 0 auto}
+  .chat-input button:disabled{opacity:.5}
+  .chat-gate{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;padding:24px;text-align:center}
+  .chat-gate h3{font-size:20px;font-weight:800}
+  .chat-gate p{font-size:13px;color:var(--ink2);font-weight:600;line-height:1.6}
+  .chat-gate input{width:min(280px,100%);height:48px;border-radius:14px;border:1.5px solid var(--line);padding:0 14px;font-size:16px;font-family:var(--sans);text-align:center;outline:none}
+  .chat-gate input:focus{border-color:var(--ink)}
+  .chat-gate button{width:min(280px,100%);height:48px;border-radius:999px;background:var(--ink);color:#fff;font-size:15px;font-weight:800}
+  .chat-note{font-size:10px;color:var(--ink3);text-align:center;padding:4px 0 0}
+  @media (min-width:900px){
+    .chat-fab{bottom:24px;right:24px}
+    .chat{left:auto;right:72px;top:12px;bottom:16px;width:380px;border-radius:22px;transform:translateX(calc(100% + 40px))}
+    .chat.open{transform:none}
+  }
+  .celeb{position:fixed;left:50%;top:calc(var(--top) + 58px);z-index:1300;width:min(calc(100vw - 24px),440px);transform:translate(-50%,-140%);opacity:0;transition:transform .45s cubic-bezier(.2,1.3,.4,1),opacity .3s;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:linear-gradient(120deg,#111 0%,#1d1d1d 60%,#2a2400 100%);color:#fff;box-shadow:0 14px 34px rgba(0,0,0,.35),0 0 0 2px var(--volt) inset;cursor:pointer}
+  .celeb.show{transform:translate(-50%,0);opacity:1}
+  .celeb .cb-e{font-size:30px;line-height:1;animation:cbPop .9s ease infinite alternate}
+  .celeb .cb-t{flex:1;min-width:0;font-size:14px;font-weight:700;line-height:1.4;letter-spacing:-.01em}
+  .celeb .cb-t b{color:var(--volt);font-weight:800}
+  .celeb .cb-t small{display:block;font-size:11px;font-weight:600;color:#9A9AA0;margin-top:1px}
+  .celeb .cb-x{color:#9A9AA0;font-size:18px;padding:0 2px}
+  @keyframes cbPop{from{transform:scale(1) rotate(-6deg)}to{transform:scale(1.15) rotate(6deg)}}
+  .confetti{position:fixed;top:-40px;z-index:1250;pointer-events:none;font-size:22px;animation:fall 2.4s cubic-bezier(.3,.6,.5,1) forwards}
+  @keyframes fall{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--dx),70vh) rotate(var(--rot));opacity:0}}
+  @media (min-width:900px){ .celeb{left:calc(50% + 208px)} }
+  @media (prefers-reduced-motion: reduce){ .confetti{display:none} .celeb .cb-e{animation:none} }
   .toast{position:fixed;left:50%;bottom:calc(var(--sheet-vis,200px) + 16px);transform:translate(-50%,10px);z-index:1200;background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:10px 16px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis}
   .toast.show{opacity:1;transform:translate(-50%,0)}
 
@@ -1034,6 +1093,35 @@ svg.leaflet-image-layer.leaflet-interactive path {
 </section>
 
 <div class="toast" id="toast"></div>
+<div class="celeb" id="celeb" role="status" aria-live="polite"></div>
+
+<!-- 응원 채팅 -->
+<button class="chat-fab" id="chatFab" aria-label="응원 채팅 열기">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.9-.9L3 20.5l1.5-4.6A8.4 8.4 0 1 1 21 11.5z"/></svg>
+  <span class="badge" id="chatBadge">0</span>
+</button>
+<section class="chat" id="chat" aria-label="응원 채팅">
+  <div class="chat-head">
+    <div class="ct"><b>💬 크루 응원 채팅</b><span><i id="chatDot"></i><span id="chatState">연결 중…</span></span></div>
+    <button class="chat-nick" id="chatNick" title="닉네임 바꾸기">닉네임</button>
+    <button class="chat-x" id="chatClose" aria-label="채팅 닫기"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+  </div>
+  <div class="chat-gate" id="chatGate">
+    <h3>닉네임을 정해주세요</h3>
+    <p>채팅에 보일 이름이에요.<br>크루원들이 알아볼 수 있게 적어주세요.</p>
+    <input id="nickInput" maxlength="12" placeholder="예: 만두, 배찌" autocomplete="off" enterkeyhint="done" />
+    <button id="nickSave">입장하기</button>
+  </div>
+  <div class="chat-msgs" id="chatMsgs" hidden></div>
+  <div id="chatBottom" hidden>
+    <div class="chat-quick" id="chatQuick"></div>
+    <div class="chat-input">
+      <input id="chatText" maxlength="200" placeholder="응원 메시지 보내기" autocomplete="off" enterkeyhint="send" />
+      <button id="chatSend">보내기</button>
+    </div>
+    <div class="chat-note" style="padding-bottom:calc(env(safe-area-inset-bottom,0px) + 4px)">메시지는 12시간 뒤 자동으로 사라져요</div>
+  </div>
+</section>
 
 <script>/* @preserve
  * Leaflet 1.9.4, a JS library for interactive maps. https://leafletjs.com
@@ -1049,6 +1137,7 @@ const CONFIG = {
   GITHUB_REPO:  '',
   DATA_BRANCH:  'data',
   POLL_MS:      30000,         // 새 기록 확인 간격 (30초)
+  CHAT_TOPIC:   'gsrc-chuncheon26-379bbfd88df1',   // 응원 채팅방 이름 (바꾸면 새 채팅방)
 };
 const RACE_DATE = '2026-10-25';
 /* 조별 출발 시각 (A조 09:00, 이후 5분 간격) */
@@ -1087,7 +1176,10 @@ const GROUPS = Object.keys(GROUP_START);
 /* ───────── 시간 ───────── */
 const DEMO_T0 = Date.now();
 /* 데모에서는 A조가 '80분 전'에 출발한 것으로 시간을 옮김 */
-function nowMs(){ return DEMO ? Date.parse(`${RACE_DATE}T09:00:00+09:00`) + 80*60000 + (Date.now() - DEMO_T0) : Date.now(); }
+/* 데모: 08:58(A조 출발 2분 전)부터 시작해 기본 20배속으로 진행 → 약 20분이면 전원 완주까지 볼 수 있음.
+   속도 변경: 주소 끝에 ?demo&speed=60 (60배속), ?demo&speed=1 (실제 속도) */
+const DEMO_SPEED = Math.max(1, Math.min(120, Number(QS.get('speed')) || 20));
+function nowMs(){ return DEMO ? Date.parse(`${RACE_DATE}T08:58:00+09:00`) + (Date.now() - DEMO_T0) * DEMO_SPEED : Date.now(); }
 function groupStartMs(g){ const t = GROUP_START[g] || GROUP_START.A; return Date.parse(`${RACE_DATE}T${t}:00+09:00`); }
 const FIRST_START_MS = groupStartMs('A');
 const LAST_START_MS = Math.max(...GROUPS.map(groupStartMs));
@@ -1475,6 +1567,81 @@ if(UI_PLUS){
   });
 }
 
+/* ═════════════ 완주 축하 배너 ═════════════
+   - 새로 완주한 크루원이 생기면 상단에 축하 배너 + 꽃가루
+   - 페이지를 늦게 연 경우엔 최근 15분 안에 완주한 사람만 축하 (몰아서 뜨지 않게)
+   - 한 사람당 이 기기에서 한 번만 */
+const celebrated = new Set(DEMO ? [] : store.get('gsrc_celebrated', []));
+let celebReady = false, celebQueue = [], celebBusy = false, celebTimer = null;
+function finishSecOf(r){
+  const n = hms(r.net_time); if(n) return n;
+  const st = hms(r.start_time), ps = hms(r.pass_time);
+  return (st && ps && ps > st) ? ps - st : null;
+}
+function fmtKoDur(sec){
+  sec = Math.round(sec); const h = Math.floor(sec/3600), m = Math.floor(sec%3600/60), s = sec%60;
+  return `${h ? h + '시간 ' : ''}${m}분 ${s}초`;
+}
+function checkFinishers(){
+  if(!lastPayload && !manualData) return;            // 기록을 한 번도 못 받았으면 판단 보류
+  const nowC = kstClockSec(nowMs());
+  let changed = false;
+  runners.forEach(r => {
+    if(status(r) !== 'finished') return;
+    const bib = String(r.bib);
+    if(celebrated.has(bib)) return;
+    celebrated.add(bib); changed = true;
+    if(!celebReady){
+      const ps = hms(r.pass_time);
+      if(!ps || nowC - ps > 15*60 || nowC - ps < -120) return;   // 오래전 완주는 조용히 넘어감
+    }
+    celebQueue.push(bib);
+  });
+  celebReady = true;
+  if(changed && !DEMO) store.set('gsrc_celebrated', [...celebrated]);
+  showNextCeleb();
+}
+function showNextCeleb(){
+  if(celebBusy || !celebQueue.length) return;
+  const nextBib = celebQueue.shift();
+  const r = runners.find(x => String(x.bib) === nextBib);
+  if(!r){ showNextCeleb(); return; }
+  celebBusy = true;
+  const sec = finishSecOf(r), el = $('celeb');
+  el.dataset.bib = r.bib;
+  el.innerHTML = `<span class="cb-e">🎉</span><span class="cb-t"><b>${esc(r.name)}</b>님이 ${sec ? `<b>${fmtKoDur(sec)}</b>로 ` : ''}완주했습니다! 🏅<small>${esc(r.group)}조 · #${esc(r.bib)} · 눌러서 기록 보기</small></span><span class="cb-x" aria-hidden="true">✕</span>`;
+  requestAnimationFrame(() => el.classList.add('show'));
+  confetti();
+  clearTimeout(celebTimer);
+  celebTimer = setTimeout(hideCeleb, celebQueue.length > 2 ? 4500 : 6500);
+}
+function hideCeleb(){
+  const el = $('celeb'); el.classList.remove('show');
+  clearTimeout(celebTimer);
+  setTimeout(() => { celebBusy = false; showNextCeleb(); }, 450);
+}
+$('celeb').addEventListener('click', e => {
+  const bib = $('celeb').dataset.bib;
+  if(!e.target.closest('.cb-x') && bib) selectRunner(bib);
+  hideCeleb();
+});
+function confetti(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const E = ['🎉','🎊','✨','🏅','🥳','💛'];
+  for(let i = 0; i < 18; i++){
+    const c = document.createElement('span');
+    c.className = 'confetti';
+    c.textContent = E[i % E.length];
+    c.style.left = `${Math.random()*100}vw`;
+    c.style.setProperty('--dx', `${(Math.random()-.5)*120}px`);
+    c.style.setProperty('--rot', `${(Math.random()-.5)*720}deg`);
+    c.style.animationDelay = `${Math.random()*.5}s`;
+    c.style.fontSize = `${16 + Math.random()*14}px`;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3200);
+  }
+}
+
 let toastT;
 function toast(msg){
   const t = $('toast'); t.textContent = msg; t.classList.add('show');
@@ -1650,9 +1817,9 @@ function renderSync(){
   dot.className = 'live-dot';
   if(DEMO){
     dot.classList.add('demo');
-    $('syncTop').textContent = '데모 모드';
+    $('syncTop').textContent = `데모 ${DEMO_SPEED}배속`;
     $('syncFoot').textContent = fmtHMS(kstClockSec(now)).padStart(8,'0');
-    $('syncDesc').textContent = '가상 데이터로 화면 확인 중';
+    $('syncDesc').textContent = `가상 데이터 · ${DEMO_SPEED}배속 진행 중`;
     return;
   }
   const preRace = now < FIRST_START_MS - 30*60000;
@@ -1814,6 +1981,7 @@ async function refresh(manual = false){
     if(p) applyPayload(p);
     else if(manual) toast('새 기록을 불러오지 못했어요');
     rebuild();
+    checkFinishers();
   } catch(err){ console.error('refresh', err); }
   finally {
     render();
@@ -1838,6 +2006,142 @@ $('refreshBtn').addEventListener('click', () => refresh(true));
   el.addEventListener('click', close);
 })();
 
+/* ═════════════ 응원 채팅 (ntfy.sh 실시간 중계) ═════════════
+   - 서버 설치 없이 무료 공개 중계(ntfy.sh)로 메시지를 주고받음. 메시지는 12시간 뒤 자동 삭제
+   - 실시간 연결이 막히면 5초마다 새 메시지를 확인하는 방식으로 자동 전환
+   - 채팅이 안 되더라도 트래커 기능에는 영향 없음 */
+const Chat = (() => {
+  const TOPIC = CONFIG.CHAT_TOPIC + (DEMO ? '-demo' : '');
+  const BASE = `https://ntfy.sh/${encodeURIComponent(TOPIC)}`;
+  const QUICK = ['🔥 화이팅!', '👏 대단해요', '💪 힘내요', '🏃 거의 다 왔어요!', '🎉 완주 축하해요!', '💧 물 꼭 챙겨요'];
+  const seen = new Set();               // 중복 방지 (ntfy id)
+  const pendings = new Map();           // 내가 보낸 메시지(확인 전)
+  let nick = store.get('gsrc_nick', '');
+  let lastSeen = store.get('gsrc_chat_seen', 0);
+  if(!lastSeen){ lastSeen = Math.floor(Date.now()/1000); store.set('gsrc_chat_seen', lastSeen); }
+  let isOpen = false, unread = 0, es = null, esFails = 0, opened = false, pollTimer = null, lastTime = 0, lastSend = 0;
+  const clientId = store.get('gsrc_cid', '') || (() => { const id = Math.random().toString(36).slice(2, 10); store.set('gsrc_cid', id); return id; })();   // 새로고침해도 내 메시지는 오른쪽에
+  const msgs = $('chatMsgs');
+
+  function setState(on, text){ $('chatDot').classList.toggle('on', !!on); $('chatState').textContent = text; }
+  function hhmm(sec){ const d = new Date(sec*1000 + 9*3600000); return d.toISOString().slice(11,16); }
+  function badge(){ const b = $('chatBadge'); b.textContent = unread > 99 ? '99+' : unread; b.classList.toggle('show', unread > 0 && !isOpen); }
+  function nearBottom(){ return msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 120; }
+  function emptyNote(){
+    if(!msgs.querySelector('.msg')) msgs.innerHTML = `<div class="chat-empty">아직 메시지가 없어요<br>첫 응원을 남겨보세요 🏃‍♀️</div>`;
+  }
+  function addMsg(m, { pending = false } = {}){
+    msgs.querySelector('.chat-empty')?.remove();
+    const mine = !!m.c && String(m.c).startsWith(clientId);
+    const el = document.createElement('div');
+    el.className = `msg${mine ? ' me' : ''}${pending ? ' pending' : ''}`;
+    el.innerHTML = `<span class="mn">${esc(m.n)}</span><span class="mb">${esc(m.t)}</span><span class="mt">${hhmm(m.time)}</span>`;
+    const stick = nearBottom() || mine;
+    msgs.appendChild(el);
+    while(msgs.children.length > 300) msgs.firstElementChild.remove();
+    if(stick) msgs.scrollTop = msgs.scrollHeight;
+    return el;
+  }
+  function onEvent(d){
+    if(!d || d.event !== 'message' || !d.id || seen.has(d.id)) return;
+    seen.add(d.id);
+    let m;
+    try{ m = JSON.parse(d.message); }catch(_){ return; }
+    if(!m || typeof m.t !== 'string' || typeof m.n !== 'string') return;
+    m = { n: m.n.slice(0, 12), t: m.t.slice(0, 200), c: m.c, time: d.time || Math.floor(Date.now()/1000) };
+    lastTime = Math.max(lastTime, m.time);
+    if(m.c && pendings.has(m.c)){ const el = pendings.get(m.c); pendings.delete(m.c); el.classList.remove('pending'); return; }
+    addMsg(m);
+    if(!isOpen && m.time > lastSeen && !String(m.c || '').startsWith(clientId)){ unread++; badge(); }
+  }
+  /* 실시간 연결 (Server-Sent Events) */
+  function connect(){
+    if(es) es.close();
+    try{ es = new EventSource(`${BASE}/sse?since=${lastTime ? lastTime : '12h'}`); }
+    catch(_){ return startPolling(); }
+    es.onopen = () => { esFails = 0; setState(true, '실시간 연결됨'); };
+    es.onmessage = e => { try{ onEvent(JSON.parse(e.data)); }catch(_){} };
+    es.onerror = () => {
+      esFails++;
+      setState(false, '다시 연결 중…');
+      const closed = !es || es.readyState === 2;          // 2 = 브라우저가 재시도를 포기한 상태
+      if(esFails >= 3 || (closed && esFails >= 2)){ if(es) es.close(); es = null; startPolling(); }
+      else if(closed){ setTimeout(connect, 3000); }
+    };
+  }
+  /* 실시간 연결이 막힌 환경(일부 회사·통신망)용: 5초마다 확인 */
+  async function poll(){
+    try{
+      const res = await fetch(`${BASE}/json?poll=1&since=${lastTime ? lastTime : '12h'}`, { cache:'no-store' });
+      if(!res.ok) throw new Error(res.status);
+      (await res.text()).split('\n').forEach(line => { if(line.trim()){ try{ onEvent(JSON.parse(line)); }catch(_){} } });
+      setState(true, '연결됨 (5초마다 확인)');
+    }catch(_){ setState(false, '연결이 불안정해요'); }
+  }
+  function startPolling(){ if(pollTimer) return; poll(); pollTimer = setInterval(() => { if(!document.hidden || isOpen) poll(); }, 5000); }
+
+  async function send(text){
+    text = String(text || '').trim().slice(0, 200);
+    if(!text || !nick) return;
+    if(Date.now() - lastSend < 1500){ toast('조금 천천히 보내주세요'); return; }
+    lastSend = Date.now();
+    const c = clientId + '-' + Date.now().toString(36);
+    const body = JSON.stringify({ n: nick, t: text, c });
+    const el = addMsg({ n: nick, t: text, c: clientId, time: Math.floor(Date.now()/1000) }, { pending: true });
+    pendings.set(c, el);
+    try{
+      const res = await fetch(BASE, { method:'POST', body });
+      if(!res.ok) throw new Error(res.status);
+      if(pollTimer) setTimeout(poll, 400);
+      setTimeout(() => { if(pendings.has(c)){ pendings.delete(c); el.classList.remove('pending'); } }, 8000);
+    }catch(err){
+      pendings.delete(c); el.remove(); emptyNote();
+      toast(err && err.message === '429' ? '메시지가 너무 많아요. 잠시 후 다시 보내주세요' : '전송에 실패했어요. 다시 시도해주세요');
+    }
+  }
+
+  function showGate(on){
+    $('chatGate').hidden = !on; $('chatMsgs').hidden = on; $('chatBottom').hidden = on;
+    $('chatGate').style.display = on ? '' : 'none';
+    if(on) setTimeout(() => $('nickInput').focus(), 300);
+  }
+  function setNick(v){
+    v = String(v || '').replace(/\s+/g, ' ').trim().slice(0, 12);
+    if(!v){ toast('닉네임을 입력해주세요'); return false; }
+    nick = v; store.set('gsrc_nick', nick); $('chatNick').textContent = nick;
+    return true;
+  }
+  function open(){
+    isOpen = true; $('chat').classList.add('open');
+    unread = 0; badge();
+    lastSeen = Math.floor(Date.now()/1000); store.set('gsrc_chat_seen', lastSeen);
+    if(!opened){ opened = true; if(!es && !pollTimer) connect(); }
+    if(!nick) showGate(true);
+    else { showGate(false); msgs.scrollTop = msgs.scrollHeight; }
+  }
+  function close(){
+    isOpen = false; $('chat').classList.remove('open');
+    lastSeen = Math.floor(Date.now()/1000); store.set('gsrc_chat_seen', lastSeen);
+    document.activeElement && document.activeElement.blur && document.activeElement.blur();
+  }
+
+  $('chatQuick').innerHTML = QUICK.map(q => `<button>${q}</button>`).join('');
+  $('chatQuick').addEventListener('click', e => { const b = e.target.closest('button'); if(b) send(b.textContent); });
+  $('chatFab').addEventListener('click', open);
+  $('chatClose').addEventListener('click', close);
+  $('chatNick').addEventListener('click', () => { $('nickInput').value = nick; showGate(true); });
+  $('nickSave').addEventListener('click', () => { if(setNick($('nickInput').value)){ showGate(false); msgs.scrollTop = msgs.scrollHeight; } });
+  $('nickInput').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing) $('nickSave').click(); });
+  $('chatSend').addEventListener('click', () => { const v = $('chatText').value; $('chatText').value = ''; send(v); $('chatText').focus(); });
+  $('chatText').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); $('chatSend').click(); } });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape' && isOpen) close(); });
+  $('chatNick').textContent = nick || '닉네임';
+  emptyNote();
+  /* 페이지가 뜬 뒤 조용히 연결 (트래커 로딩을 방해하지 않게) */
+  setTimeout(connect, 2500);
+  return { open, close, send, _onEvent: onEvent };
+})();
+
 /* ═════════════ 시작 ═════════════ */
 render();
 requestAnimationFrame(() => { setSnap('half'); fitCourse(false); });
@@ -1845,7 +2149,7 @@ refresh().then(() => {
   const bib = QS.get('bib');
   if(UI_PLUS && bib && runners.some(r => r.bib === bib)) setTimeout(() => selectRunner(bib), 400);
 });
-setInterval(() => { if(!document.hidden) refresh(); }, DEMO ? 15000 : CONFIG.POLL_MS);
+setInterval(() => { if(!document.hidden) refresh(); }, DEMO ? 3000 : CONFIG.POLL_MS);
 setInterval(() => { render(); if(following){ const ll = selectedLatLng(); if(ll) focusOn(ll); } }, 20000);
 setInterval(() => {
   const byBib = new Map(runners.map(r => [String(r.bib), r]));
