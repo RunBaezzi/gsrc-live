@@ -733,7 +733,12 @@ svg.leaflet-image-layer.leaflet-interactive path {
   /* ───── 지도 ───── */
   #map{position:fixed;inset:0;z-index:1;background:#0B0D13}
   .leaflet-container{font-family:var(--sans);background:#0B0D13}
-  #map.tiles-osm .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.6)}
+  #map{background:#E9E5DC}
+  #map.dark{background:#0B0D13}
+  #map.dark .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.88) saturate(.55)}
+  .osm-credit{position:fixed;z-index:900;right:12px;top:calc(var(--top) + 150px);font-size:10px;font-weight:600;color:#333;background:rgba(255,255,255,.8);padding:2px 6px;border-radius:6px;pointer-events:auto}
+  .osm-credit a{color:inherit;text-decoration:none}
+  .round-btn.on{background:var(--ink);color:var(--volt)}
 
   /* ───── 상단 바 ───── */
   .topbar{position:fixed;top:var(--top);left:12px;right:12px;z-index:1000;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;pointer-events:none}
@@ -787,7 +792,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .focus-big span{font-family:var(--num);font-weight:700;font-size:20px;color:#9A9AA0}
   .focus-bar{height:4px;border-radius:999px;background:rgba(255,255,255,.15);overflow:hidden;margin:10px 0 12px}
   .focus-bar i{display:block;height:100%;background:var(--volt);border-radius:999px;transition:width .5s}
-  .focus-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .focus-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 8px}
   .focus-grid div{display:flex;flex-direction:column;gap:2px;min-width:0}
   .focus-grid b{font-family:var(--num);font-weight:700;font-size:21px;line-height:1;white-space:nowrap}
   .focus-grid span{font-size:11px;color:#9A9AA0;font-weight:600;white-space:nowrap}
@@ -880,7 +885,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .mk.sel .mk-label em{color:var(--volt)}
   .mk.sel .mk-stem{background:var(--ink)}
   .mk.sel .mk-dot{width:14px;height:14px;background:var(--volt);border-color:var(--ink);box-shadow:0 0 0 6px rgba(212,255,0,.35)}
-  .km-tag{position:absolute;transform:translate(-50%,-50%);font-family:var(--num);font-weight:800;font-size:11px;color:#111;background:var(--volt);border:2px solid #0B0D13;border-radius:999px;padding:1px 5px;white-space:nowrap;line-height:1.2}
+  .km-tag{position:absolute;transform:translate(-50%,-50%);font-family:var(--num);font-weight:800;font-size:11px;color:#111;background:var(--volt);border:2px solid #111;border-radius:999px;padding:1px 5px;white-space:nowrap;line-height:1.2}
   .km-tag.turn{background:#fff}
   .sf-dot{position:absolute;width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%);border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.4)}
   .sf-dot.start{background:var(--run)} .sf-dot.finish{background:#111}
@@ -941,6 +946,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 </div>
 
 <div id="map"></div>
+<div class="osm-credit"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a></div>
 
 <header class="topbar">
   <div class="brand">
@@ -954,6 +960,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
   <div class="top-actions">
     <button class="round-btn" id="refreshBtn" aria-label="새로고침">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+    </button>
+    <button class="round-btn" id="darkBtn" aria-label="지도 어둡게 보기" title="지도 밝게/어둡게">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
     </button>
     <button class="round-btn" id="fitBtn" aria-label="전체 코스 보기">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
@@ -988,8 +997,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
       <div class="focus-big"><b id="fKm">0.00</b><span>KM</span></div>
       <div class="focus-bar"><i id="fBar" style="width:0%"></i></div>
       <div class="focus-grid">
+        <div><b id="fCur">-</b><span>현재 페이스</span></div>
         <div><b id="fPace">-</b><span>평균 페이스</span></div>
         <div><b id="fNet">-</b><span id="fNetLabel">달린 시간</span></div>
+        <div><b id="fNextEta">-</b><span id="fNextLabel">다음 구간 도착</span></div>
+        <div><b id="fNextIn">-</b><span>남은 시간</span></div>
         <div><b id="fEta">-</b><span id="fEtaLabel">예상 완주</span></div>
       </div>
       <div class="splits" id="fSplits"></div>
@@ -1108,6 +1120,8 @@ function cpName(km){
 
 /* ───────── 선수 상태 ───────── */
 function groupStarted(g){ return nowMs() >= groupStartMs(g); }
+/* 조 출발 시각은 '예상'이라, 예상보다 일찍 출발한 크루원이 한 명이라도 있으면 그 조는 레이스 중으로 봄 */
+function groupLive(g){ return groupStarted(g) || runners.some(r => r.group === g && (r.started || (Number(r.km) || 0) > 0)); }
 function status(r){
   const km = Number(r.km) || 0;
   if(km >= 42.19) return 'finished';
@@ -1131,10 +1145,45 @@ function elapsedOf(r){
   if(sec < 0 || sec > 9*3600) return null;
   return { sec, own: false };
 }
-/* 지금쯤 위치 추정: 마지막 통과 시각 + 평균 페이스 (다음 체크포인트는 넘지 않음) */
+/* 현재 페이스: 가장 최근 약 3km 이상 구간의 페이스 (구간기록 기반). 없으면 평균 페이스 */
+function splitsOf(r){
+  return (Array.isArray(r.splits) ? r.splits : [])
+    .map(s => ({ km: Number(s && s.km), net: hms(s && s.net) }))
+    .filter(s => s.km > 0 && s.net).sort((a, b) => a.km - b.km);
+}
+function curPaceOf(r){
+  const sp = splitsOf(r);
+  if(!sp.length) return paceOf(r);
+  const last = sp[sp.length - 1];
+  let prev = { km: 0, net: 0 };
+  for(let i = sp.length - 2; i >= 0; i--){ if(last.km - sp[i].km >= 2.9){ prev = sp[i]; break; } }
+  const d = last.km - prev.km, t = last.net - prev.net;
+  if(d <= 0 || t <= 0) return paceOf(r);
+  const p = t / d;
+  return (p >= 150 && p <= 720) ? p : paceOf(r);
+}
+/* 다음 계측구간: 이름, 도착 예상 시각(시:분), 남은 분 */
+function nextInfo(r){
+  if(status(r) !== 'running') return null;
+  const km = Number(r.km) || 0, nc = nextCp(km);
+  const p = curPaceOf(r), pass = hms(r.pass_time);
+  if(!p || !pass || pass < 6*3600 || pass > 20*3600) return { name: cpName(nc), eta: null, mins: null };
+  const eta = pass + (nc - km) * p;
+  const mins = Math.round((eta - kstClockSec(nowMs())) / 60);
+  const hh = Math.floor(eta / 3600) % 24, mm = Math.floor(eta % 3600 / 60);
+  return { name: cpName(nc), eta: `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`, mins };
+}
+function minsText(m){ return m == null ? '' : m <= 0 ? '곧 도착' : m < 60 ? `${m}분 후` : `${Math.floor(m/60)}시간 ${m%60}분 후`; }
+/* 예상 완주: 지금까지 기록 + 남은 거리 × 현재 페이스 */
+function finishEta(r){
+  const net = hms(r.net_time), km = Number(r.km) || 0, p = curPaceOf(r);
+  if(!net || !p || km < 3) return null;
+  return net + (FULL - km) * p;
+}
+/* 지금쯤 위치 추정: 마지막 통과 시각 + 현재 페이스 (다음 체크포인트는 넘지 않음) */
 function estKm(r){
   if(status(r) !== 'running') return null;
-  const p = paceOf(r), pass = hms(r.pass_time), km = Number(r.km) || 0;
+  const p = curPaceOf(r), pass = hms(r.pass_time), km = Number(r.km) || 0;
   if(!p || !pass || pass < 6*3600 || pass > 20*3600) return null;
   const el = kstClockSec(nowMs()) - pass;
   if(el < 0 || el > 2*3600) return null;
@@ -1142,13 +1191,14 @@ function estKm(r){
 }
 
 /* ═════════════ 지도 ═════════════ */
-const map = L.map('map', { zoomControl:false, attributionControl:false }).setView([37.895,127.700], 12);
+const DEFAULT_VIEW = [[37.900, 127.698], 12];
+const map = L.map('map', { zoomControl:false, attributionControl:false, minZoom:10, maxZoom:18 }).setView(...DEFAULT_VIEW);
 
-/* 지도 배경: 첫 번째가 막히면 자동으로 다음 지도로 교체 */
+/* 지도 배경: OpenStreetMap (무료·키 불필요·한글 지명). 막히면 Esri 일반 지도로 자동 교체.
+   🌙 버튼으로 같은 지도를 어둡게 볼 수 있음 */
 const TILE_SOURCES = [
-  { name:'carto', url:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', opt:{ subdomains:'abcd', maxZoom:19 } },
-  { name:'esri',  url:'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', opt:{ maxZoom:16, maxNativeZoom:16 } },
-  { name:'osm',   url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png', opt:{ maxZoom:19 } },
+  { name:'osm',  url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png', opt:{ maxNativeZoom:19, maxZoom:18 } },
+  { name:'esri', url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', opt:{ maxNativeZoom:18, maxZoom:18 } },
 ];
 let tileIdx = -1, tileLayer = null, tileOk = 0, tileErr = 0, tileTimer = null;
 function useTiles(i){
@@ -1156,7 +1206,6 @@ function useTiles(i){
   if(tileLayer) map.removeLayer(tileLayer);
   tileIdx = i; tileOk = 0; tileErr = 0;
   const src = TILE_SOURCES[i];
-  $('map').classList.toggle('tiles-osm', src.name === 'osm');
   tileLayer = L.tileLayer(src.url, { ...src.opt, crossOrigin:false }).addTo(map);
   tileLayer.on('tileload', () => { tileOk++; });
   tileLayer.on('tileerror', () => { tileErr++; if(tileOk === 0 && tileErr >= 4) useTiles(i + 1); });
@@ -1164,6 +1213,10 @@ function useTiles(i){
   tileTimer = setTimeout(() => { if(tileIdx === i && tileOk === 0) useTiles(i + 1); }, 7000);
 }
 useTiles(0);
+let darkMap = store.get('gsrc_dark', false);
+function applyDark(){ $('map').classList.toggle('dark', !!darkMap); $('darkBtn').classList.toggle('on', !!darkMap); }
+applyDark();
+$('darkBtn').addEventListener('click', () => { darkMap = !darkMap; store.set('gsrc_dark', darkMap); applyDark(); toast(darkMap ? '지도를 어둡게 바꿨어요' : '지도를 밝게 바꿨어요'); });
 
 /* 코스: GPX 점들의 누적 거리 계산 → km 로 위치 찾기 */
 function hav(a, b){
@@ -1184,7 +1237,7 @@ function latLngAt(km){
   const t = Math.max(0, Math.min(1, (k - CUM_KM[lo]) / seg));
   return [a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t];
 }
-L.polyline(COURSE, { color:'#0B0D13', weight:9, opacity:.55, lineJoin:'round', lineCap:'round', interactive:false }).addTo(map);
+L.polyline(COURSE, { color:'#111111', weight:9, opacity:.8, lineJoin:'round', lineCap:'round', interactive:false }).addTo(map);
 const courseLine = L.polyline(COURSE, { color:'#D4FF00', weight:4, opacity:.95, lineJoin:'round', lineCap:'round', interactive:false }).addTo(map);
 function tagIcon(html){ return L.divIcon({ className:'', html, iconSize:[0,0], iconAnchor:[0,0] }); }
 [5,10,15,20,25,30,35,40].forEach(k => L.marker(latLngAt(k), { icon: tagIcon(`<div class="km-tag">${k}K</div>`), interactive:false, zIndexOffset:-500 }).addTo(map));
@@ -1205,15 +1258,27 @@ function focusOn(latlng, zoom, animate = true){
   const ins = uiInsets();
   const pt = map.project(latlng, z).add([-ins.left/2, (ins.bottom - ins.top)/2]);
   const c = map.unproject(pt, z);
+  if(document.hidden) animate = false;
   if(animate && z !== map.getZoom()) map.flyTo(c, z, { duration:.6 });
+  else if(!animate) map.setView(c, z, { animate:false });
   else map.panTo(c, { animate, duration:.5 });
 }
+/* 전체 코스 보기: 화면 크기를 아직 모를 때(창이 숨겨진 채 열림 등)는 기본 위치로 → 최대 확대로 튀는 문제 방지 */
 function fitCourse(animate = true){
-  const ins = uiInsets();
-  const opt = { paddingTopLeft:[ins.left + 24, ins.top + 10], paddingBottomRight:[24, ins.bottom + 24] };
-  if(animate) map.flyToBounds(courseLine.getBounds(), { ...opt, duration:.6 });
-  else map.fitBounds(courseLine.getBounds(), opt);
+  map.invalidateSize(false);
+  const sz = map.getSize(), ins = uiInsets();
+  const availW = sz.x - ins.left - 48, availH = sz.y - ins.top - ins.bottom - 34;
+  if(sz.x < 80 || sz.y < 80 || availW < 120 || availH < 120){ map.setView(...DEFAULT_VIEW); return; }
+  const opt = { paddingTopLeft:[ins.left + 24, ins.top + 10], paddingBottomRight:[24, ins.bottom + 24], maxZoom:15 };
+  if(animate && !document.hidden) map.flyToBounds(courseLine.getBounds(), { ...opt, duration:.6 });
+  else map.fitBounds(courseLine.getBounds(), { ...opt, animate:false });   // 백그라운드에서 열려도 확대가 멈추지 않도록 즉시 적용
 }
+/* 사용자가 지도를 직접 만지기 전까지는, 화면 크기가 바뀌면 코스 전체가 보이도록 다시 맞춤 */
+let userMoved = false;
+map.on('dragstart', () => { userMoved = true; });
+map.getContainer().addEventListener('wheel', () => { userMoved = true; }, { passive:true });
+map.getContainer().addEventListener('touchstart', e => { if(e.touches.length > 1) userMoved = true; }, { passive:true });
+function refitIfIdle(){ if(!userMoved && !selectedBib) fitCourse(false); }
 
 /* ───────── 상태 ───────── */
 let runners = ROSTER.map(r => ({ ...r }));
@@ -1370,7 +1435,7 @@ list.addEventListener('wheel', e => {
   else if(snap === 'full' && list.scrollTop <= 0 && e.deltaY < -20){ setSnap('half'); }
 }, { passive:false });
 let resizeT;
-window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => setSnap(snap), 80); });
+window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { setSnap(snap); refitIfIdle(); }, 120); });
 
 /* ═════════════ 선택 · 추적 ═════════════ */
 function selectRunner(bib){
@@ -1458,22 +1523,22 @@ function rankMap(){
 function tickText(r){
   if(status(r) === 'finished') return `🏁 완주${r.net_time ? ' ' + esc(r.net_time) : ''}`;
   if(status(r) === 'standby'){
-    return `⏱ ${r.group}조 ${GROUP_START[r.group] || ''} 출발 · ${fmtUntil(groupStartMs(r.group) - nowMs())}`;
+    return `⏱ ${r.group}조 ${GROUP_START[r.group] || ''} 출발 예정 · ${fmtUntil(groupStartMs(r.group) - nowMs())}`;
   }
   const el = elapsedOf(r);
   if(!el) return '⏱ 출발 대기';
-  return `⏱ ${fmtElapsed(el.sec)} 달리는 중${el.own ? '' : ' <small>조 출발 기준</small>'}`;
+  return `⏱ ${fmtElapsed(el.sec)} 달리는 중${el.own ? '' : ' <small>예상 출발 기준</small>'}`;
 }
 function rowMeta(r){
   const st = status(r), km = Number(r.km) || 0;
   if(st === 'finished') return { dot:'var(--volt)', bar:'var(--ink)', text:`완주${r.net_time ? ' · ' + esc(r.net_time) : ''}` };
   if(st === 'standby')  return { dot:'var(--wait)', bar:'var(--wait)', text:'출발 전' };
   if(!r.started && km === 0) return { dot:'var(--run)', bar:'var(--run)', text:'레이스 중 · 출발 매트 기록 확인 중' };
-  const p = paceOf(r), e = estKm(r);
+  const cp = curPaceOf(r), ni = nextInfo(r);
   let t = `${cpName(km)} 통과`;
-  if(r.pass_time) t += ` · ${esc(r.pass_time)}`;
-  if(p) t += ` · ${fmtPace(p)}/km`;
-  if(e != null) t += ` · 지금 ~${e.toFixed(1)}km`;
+  if(r.pass_time) t += ` ${esc(String(r.pass_time).slice(0,5))}`;
+  if(cp) t += ` · 현재 ${fmtPace(cp)}`;
+  if(ni && ni.eta) t += ` · ${esc(ni.name)} ${ni.mins != null && ni.mins <= 0 ? '곧 도착' : '~' + ni.eta}`;
   return { dot:'var(--run)', bar:'var(--run)', text:t };
 }
 function rowHtml(r, leftLabel){
@@ -1491,12 +1556,12 @@ function rowHtml(r, leftLabel){
 function groupHead(g, members){
   const total = runners.filter(r => r.group === g).length;
   const fin = members.filter(r => status(r) === 'finished').length;
-  const started = groupStarted(g);
+  const started = groupLive(g);
   let badge;
   if(!started) badge = `<span class="gs">${fmtUntil(groupStartMs(g) - nowMs())}</span>`;
   else if(fin === total && total) badge = `<span class="gs done">전원 완주</span>`;
   else badge = `<span class="gs live">레이스 중${fin ? ` · 완주 ${fin}` : ''}</span>`;
-  return `<div class="ghead" data-group="${g}"><span class="gl">${g}</span><span class="gt"><b>${g}조</b><span>${GROUP_START[g]} 출발 · ${total}명</span></span>${badge}</div>`;
+  return `<div class="ghead" data-group="${g}"><span class="gl">${g}</span><span class="gt"><b>${g}조</b><span>${GROUP_START[g]} 출발 예정 · ${total}명</span></span>${badge}</div>`;
 }
 function renderList(){
   document.querySelectorAll('#viewSeg button').forEach(b => b.classList.toggle('on', b.dataset.view === view));
@@ -1524,7 +1589,7 @@ function renderList(){
       const members = rows.filter(r => r.group === g);
       if(!members.length) return;
       html += groupHead(g, members);
-      html += [...members].sort((a, b) => (groupStarted(g) ? byProgress(a, b) : a.order - b.order))
+      html += [...members].sort((a, b) => (groupLive(g) ? byProgress(a, b) : a.order - b.order))
         .map(r => rowHtml(r, String(ranks.get(String(r.bib))).padStart(2,'0'))).join('');
     });
     const others = rows.filter(r => !GROUPS.includes(r.group));
@@ -1533,7 +1598,7 @@ function renderList(){
   list.innerHTML = html + credit();
 }
 function credit(){
-  return `<div class="credit">지도 © OpenStreetMap contributors · CARTO · Esri<br>made by <b>bazzi</b> · GSRC</div>`;
+  return `<div class="credit">지도 © OpenStreetMap contributors · Esri<br>made by <b>bazzi</b> · GSRC</div>`;
 }
 function renderStats(){
   let run = 0, fin = 0, wait = 0;
@@ -1553,17 +1618,23 @@ function renderFocus(){
   $('fBar').style.width = `${Math.min(100, km/FULL*100)}%`;
   $('fState').textContent =
     st === 'finished' ? '완주했어요 🎉' :
-    st === 'standby'  ? `${r.group}조 ${GROUP_START[r.group]} 출발 · ${fmtUntil(groupStartMs(r.group) - nowMs())}` :
+    st === 'standby'  ? `${r.group}조 ${GROUP_START[r.group]} 출발 예정 · ${fmtUntil(groupStartMs(r.group) - nowMs())}` :
     (!r.started && km === 0) ? '레이스 중 · 출발 매트 기록 확인 중' :
     `${cpName(km)} 통과${r.pass_time ? ' · ' + r.pass_time : ''}${e != null ? ` · 지금 ~${e.toFixed(1)}km 추정` : ''}`;
   $('fPace').textContent = p ? fmtPace(p) : '-';
+  const cp = st === 'running' ? curPaceOf(r) : null;
+  $('fCur').textContent = cp ? fmtPace(cp) : '-';
+  const ni = nextInfo(r);
+  if(st === 'finished'){ $('fNextEta').textContent = '🏁'; $('fNextLabel').textContent = '완주'; $('fNextIn').textContent = '-'; }
+  else if(ni){ $('fNextEta').textContent = ni.eta || '-'; $('fNextLabel').textContent = `${ni.name} 도착 예상`; $('fNextIn').textContent = ni.eta ? minsText(ni.mins) : '-'; }
+  else { $('fNextEta').textContent = '-'; $('fNextLabel').textContent = '다음 구간 도착'; $('fNextIn').textContent = '-'; }
   if(st === 'running'){
     const el = elapsedOf(r);
     $('fNet').textContent = el ? fmtHMS(el.sec) : '-';
-    $('fNetLabel').textContent = el && !el.own ? '달린 시간(조 기준)' : '달린 시간';
+    $('fNetLabel').textContent = el && !el.own ? '달린 시간(예상 출발 기준)' : '달린 시간';
   } else { $('fNet').textContent = r.net_time || '-'; $('fNetLabel').textContent = st === 'finished' ? '완주 기록' : '달린 시간'; }
   if(st === 'finished'){ $('fEta').textContent = r.pass_time || '-'; $('fEtaLabel').textContent = '도착 시각'; }
-  else { $('fEta').textContent = p ? fmtHMS(p*FULL) : '-'; $('fEtaLabel').textContent = '예상 완주'; }
+  else { const fe = finishEta(r); $('fEta').textContent = fe ? fmtHMS(fe) : '-'; $('fEtaLabel').textContent = '예상 완주'; }
   if(UI_PLUS){
     const sp = Array.isArray(r.splits) ? r.splits.filter(s => s && s.km > 0) : [];
     $('fSplits').innerHTML = sp.length
@@ -1788,7 +1859,9 @@ GROUPS.forEach(g => {
   const wait = groupStartMs(g) - nowMs();
   if(!DEMO && wait > 0 && wait < 864e5) setTimeout(() => { render(); toast(`${g}조 출발! 🏃`); }, wait + 300);
 });
-document.addEventListener('visibilitychange', () => { if(!document.hidden) refresh(); });
+document.addEventListener('visibilitychange', () => { if(!document.hidden){ refresh(); setTimeout(refitIfIdle, 150); } });
+window.addEventListener('load', () => setTimeout(refitIfIdle, 200));
+setTimeout(refitIfIdle, 1500);
 </script>
 </body>
 </html>
