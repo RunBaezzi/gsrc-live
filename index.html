@@ -839,6 +839,16 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
   .focus{display:none;margin:2px 16px 12px;padding:16px;border-radius:20px;background:var(--ink);color:#fff}
   .focus.show{display:block}
+  /* 접힌 상태: 선수 카드를 한 줄짜리로 줄이고 나머지는 숨김 (휴대폰) */
+  @media (max-width:899px){
+    .sheet.peek .stats,.sheet.peek .tools,.sheet.peek .sync,.sheet.peek .notice{display:none!important}
+    .sheet.peek .focus{padding:11px 14px;margin:0 12px 6px}
+    .sheet.peek .focus-grid,.sheet.peek .splits,.sheet.peek .focus-actions,.sheet.peek .focus-bar,.sheet.peek #fShare{display:none!important}
+    .sheet.peek .focus-big{margin:2px 0 0}
+    .sheet.peek .focus-big b{font-size:32px}
+    .sheet.peek .focus-big span{font-size:15px}
+    .sheet.peek .grab{padding:8px 0 4px}
+  }
   .focus-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
   .focus-name{font-size:17px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
   .focus-name small{font-size:12px;font-weight:600;color:#9A9AA0}
@@ -1053,7 +1063,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
           </button>
         </div>
       </div>
-      <div class="focus-big"><b id="fKm">0.00</b><span>KM</span></div>
+      <div class="focus-big"><b id="fKm">0.00</b><span id="fKmUnit">KM</span></div>
       <div class="focus-bar"><i id="fBar" style="width:0%"></i></div>
       <div class="focus-grid">
         <div><b id="fCur">-</b><span>현재 페이스</span></div>
@@ -1342,8 +1352,9 @@ L.marker(COURSE[COURSE.length-1], { icon: tagIcon(`<div class="sf-dot finish"></
 
 function uiInsets(){
   if(isDesktop()) return { left: 432, top: 70, bottom: 0 };
-  const topH = sheet.getBoundingClientRect().top;
-  return { left: 0, top: 70, bottom: Math.max(0, window.innerHeight - topH) };
+  // 패널이 움직이는 중이어도 '도착할 위치' 기준으로 계산 (지도 중심이 어긋나지 않게)
+  const vis = typeof curY === 'number' && sheet.style.transform ? Math.max(0, sheetH() - curY) : Math.max(0, window.innerHeight - sheet.getBoundingClientRect().top);
+  return { left: 0, top: 70, bottom: vis };
 }
 function focusOn(latlng, zoom, animate = true){
   const z = zoom ?? map.getZoom();
@@ -1454,12 +1465,21 @@ function selectedLatLng(){
 const sheet = $('sheet'), head = $('sheetHead'), list = $('list');
 let snap = 'half', curY = 0;
 function sheetH(){ return sheet.getBoundingClientRect().height; }
+/* 접힌 상태(peek)는 '작은 카드'만 보이게 → 추적 중에도 지도가 넓게 보임 */
+function headHeight(compact){
+  const had = sheet.classList.contains('peek');
+  if(compact !== had) sheet.classList.toggle('peek', compact);
+  const h = head.offsetHeight + 4;
+  if(compact !== had) sheet.classList.toggle('peek', had);
+  return h;
+}
 function snapY(name){
   const H = sheetH();
-  const peek = Math.min(H - 60, head.offsetHeight + 4);
   if(name === 'full') return 0;
-  if(name === 'peek') return Math.max(0, H - peek);
-  return Math.max(0, Math.min(H - peek, H - Math.round(window.innerHeight * .52)));
+  const peekVis = Math.min(H - 60, headHeight(true));
+  if(name === 'peek') return Math.max(0, H - peekVis);
+  const halfVis = Math.min(H - 20, Math.max(Math.round(window.innerHeight * .52), headHeight(false)));
+  return Math.max(0, H - Math.max(halfVis, peekVis));
 }
 function applyY(y){
   curY = y;
@@ -1470,6 +1490,7 @@ function setSnap(name){
   if(isDesktop()){ sheet.style.transform = ''; sheet.classList.add('full'); return; }
   snap = name;
   sheet.classList.toggle('full', name === 'full');
+  sheet.classList.toggle('peek', name === 'peek');
   if(name !== 'full') list.scrollTop = 0;
   applyY(snapY(name));
 }
@@ -1535,7 +1556,7 @@ function selectRunner(bib){
   selectedBib = String(bib);
   following = true;
   render();
-  if(!isDesktop() && snap === 'full') setSnap('half'); else setSnap(snap);
+  if(!isDesktop()) setSnap('peek');          // 추적 시작 → 패널을 작게 내려 지도를 넓게
   const ll = selectedLatLng();
   if(ll) setTimeout(() => focusOn(ll, Math.max(map.getZoom(), 14)), 30);
 }
@@ -1710,14 +1731,15 @@ function rowMeta(r){
 }
 function rowHtml(r, leftLabel){
   const km = Number(r.km) || 0, m = rowMeta(r), sel = String(r.bib) === selectedBib, st = status(r);
+  const liveEst = st === 'running' ? estKm(r) : null;
   const star = UI_PLUS ? `<button class="fav${favs.has(String(r.bib)) ? ' on' : ''}" data-bib="${esc(r.bib)}" aria-label="관심 크루"><svg width="17" height="17" viewBox="0 0 24 24" fill="${favs.has(String(r.bib)) ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><polygon points="12 2.5 15 9 22 9.7 16.7 14.3 18.3 21.3 12 17.6 5.7 21.3 7.3 14.3 2 9.7 9 9"/></svg></button>` : '';
   return `<div class="row${sel ? ' selected' : ''}" data-bib="${esc(r.bib)}">
     <span class="rank">${leftLabel}</span>
     <div class="who"><b>${esc(r.name)}</b><small>#${esc(r.bib)}</small><span class="gchip">${esc(r.group)}조</span>${r.manual ? '<span class="mtag">수동</span>' : ''}${sel && following ? '<span class="tag">추적 중</span>' : ''}${star}</div>
-    <div class="dist"><b>${km >= 42.19 ? '42.2' : km.toFixed(1)}</b><span>KM</span></div>
+    <div class="dist"><b>${st === 'finished' ? '42.2' : (liveEst != null ? '~' + liveEst.toFixed(1) : km.toFixed(1))}</b><span>${liveEst != null && st !== 'finished' ? 'KM 추정' : 'KM'}</span></div>
     <div class="tick${st === 'standby' ? ' wait' : ''}" data-tick="${esc(r.bib)}">${tickText(r)}</div>
     <div class="meta"><span class="d" style="background:${m.dot}"></span>${m.text}</div>
-    <div class="bar"><i style="width:${Math.min(100, km/FULL*100)}%;background:${m.bar}"></i></div>
+    <div class="bar"><i style="width:${Math.min(100, (st === 'finished' ? FULL : (liveEst ?? km))/FULL*100)}%;background:${m.bar}"></i></div>
   </div>`;
 }
 function groupHead(g, members){
@@ -1781,8 +1803,11 @@ function renderFocus(){
   const st = status(r), km = Number(r.km) || 0, p = paceOf(r), e = estKm(r);
   $('fName').innerHTML = `${esc(r.name)}<small>#${esc(r.bib)}</small><span class="gchip">${esc(r.group)}조</span>${r.manual ? '<span class="mtag">수동 보정</span>' : ''}`;
   $('followPillText').textContent = `${r.name} 추적 중`;
-  $('fKm').textContent = st === 'finished' ? '42.195' : km.toFixed(2);
-  $('fBar').style.width = `${Math.min(100, km/FULL*100)}%`;
+  /* 지도와 같은 거리: 레이스 중이면 '지금쯤 위치(추정)', 아니면 기록된 거리 */
+  const shownKm = st === 'finished' ? FULL : (e ?? km);
+  $('fKm').textContent = st === 'finished' ? '42.195' : (e != null ? '~' + shownKm.toFixed(2) : km.toFixed(2));
+  $('fKmUnit').textContent = (e != null && st !== 'finished') ? 'KM 추정' : 'KM';
+  $('fBar').style.width = `${Math.min(100, shownKm/FULL*100)}%`;
   $('fState').textContent =
     st === 'finished' ? '완주했어요 🎉' :
     st === 'standby'  ? `${r.group}조 ${GROUP_START[r.group]} 출발 예정 · ${fmtUntil(groupStartMs(r.group) - nowMs())}` :
@@ -1862,7 +1887,7 @@ function detectRepo(){
   return { owner:m[1], repo: seg && !seg.includes('.') ? seg : `${m[1]}.github.io` };
 }
 const REPO = detectRepo();
-let apiBlockedUntil = 0;
+let apiBlockedUntil = 0, lastApiAt = 0;
 function withTimeout(promise, ms){
   return Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
 }
@@ -1932,7 +1957,15 @@ function rebuild(){
   $('notice').textContent = notice ? `📢 ${notice}` : '';
   $('notice').classList.toggle('show', !!notice);
 }
+/* 수동 보정: 저장소(main)의 manual.json 을 직접 읽음 (사이트 재배포 없이 반영) → 실패하면 사이트 사본 */
 async function fromManual(){
+  if(REPO){
+    try{
+      const r = await fetch(`https://raw.githubusercontent.com/${REPO.owner}/${REPO.repo}/main/manual.json?t=${Date.now()}`, { cache:'no-store' });
+      if(r.status === 404) return {};
+      if(r.ok) return await r.json();
+    }catch(_){}
+  }
   const res = await fetch(`./manual.json?t=${Date.now()}`, { cache:'no-store' });
   if(res.status === 404) return {};
   if(!res.ok) throw new Error(res.status);
@@ -1965,18 +1998,18 @@ async function refresh(manual = false){
     let p = null;
     if(DEMO) p = demoPayload();
     else {
-      const man = await withTimeout(fromManual(), 6000).catch(() => undefined);
+      /* 기록은 GitHub 저장소(data 브랜치)에서 직접 읽음 — 웹사이트 재배포와 무관하게 항상 최신
+         raw(빠르고 넉넉함) + API(가장 신선, 2분에 한 번만) + 사이트 사본(예비) 중 가장 최신 것을 사용 */
+      const useApi = Date.now() - lastApiAt > 110000;
+      if(useApi) lastApiAt = Date.now();
+      const [man, ...cands] = await Promise.all([
+        withTimeout(fromManual(), 6000).catch(() => undefined),
+        withTimeout(fromRaw(), 8000).then(normalize).catch(() => null),
+        useApi ? withTimeout(fromApi(), 8000).then(normalize).catch(() => null) : Promise.resolve(null),
+        withTimeout(fromSite(), 8000).then(normalize).catch(() => null),
+      ]);
       if(man !== undefined) manualData = man && typeof man === 'object' ? man : {};
-      const site = await withTimeout(fromSite(), 8000).then(normalize).catch(() => null);
-      const fresh = site && (Date.now()/1000 - site.updated_epoch) < 180;
-      if(fresh) p = site;
-      else {
-        const extra = await Promise.all([
-          withTimeout(fromApi(), 8000).then(normalize).catch(() => null),
-          withTimeout(fromRaw(), 8000).then(normalize).catch(() => null),
-        ]);
-        p = newest([site, ...extra]);
-      }
+      p = newest(cands);
     }
     if(p) applyPayload(p);
     else if(manual) toast('새 기록을 불러오지 못했어요');

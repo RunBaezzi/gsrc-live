@@ -218,12 +218,19 @@ async function loadManual(){
   if(!manual.runners || typeof manual.runners !== 'object') manual.runners = {};
   if(typeof manual.notice !== 'string') manual.notice = '';
 }
+/* 최신 기록: 저장소(data 브랜치) 직접 읽기 → 실패 시 사이트 사본. 둘 중 최신 것 */
+async function latestData(){
+  const get = u => fetch(u, { cache:'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null);
+  const [a, b] = await Promise.all([
+    repo() ? get(`https://raw.githubusercontent.com/${repo()}/data/data.json?t=${Date.now()}`) : null,
+    get(`./data.json?t=${Date.now()}`),
+  ]);
+  return [a, b].filter(d => d && Array.isArray(d.runners)).sort((x, y) => (Number(y.updated_epoch)||0) - (Number(x.updated_epoch)||0))[0] || null;
+}
 async function loadLive(){
   live = new Map();
-  try{
-    const res = await fetch(`./data.json?t=${Date.now()}`, { cache:'no-store' });
-    if(res.ok){ const d = await res.json(); (d.runners || []).forEach(r => live.set(String(r.bib), r)); }
-  }catch(_){}
+  const d = await latestData();
+  if(d) d.runners.forEach(r => live.set(String(r.bib), r));
 }
 /* 저장: 최신 파일을 다시 읽고 그 위에 변경을 적용 → 동시에 두 사람이 고쳐도 덮어쓰지 않음 */
 async function saveManual(mutate, label){
@@ -402,9 +409,8 @@ async function checkRun(){
 let lastEpoch = 0;
 async function checkData(){
   try{
-    const res = await fetch(`./data.json?t=${Date.now()}`, { cache:'no-store' });
-    if(!res.ok) throw new Error(res.status);
-    const d = await res.json();
+    const d = await latestData();
+    if(!d) throw new Error('no data');
     const ep = Number(d.updated_epoch) || 0;
     const age = ep ? Math.floor((Date.now()/1000 - ep)/60) : null;
     $('lastData').textContent = ep ? `크루 화면 기록 기준: ${d.updated_at} (${age < 1 ? '방금' : age + '분 전'}) · ${d.ok_count}/${d.total}명 확인` : '크루 화면 기록 기준: 아직 기록 없음';
